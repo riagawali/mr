@@ -1,0 +1,96 @@
+[cloudera@quickstart ~]$ hive
+
+Logging initialized using configuration in file:/etc/hive/conf.dist/hive-log4j.properties
+WARNING: Hive CLI is deprecated and migration to Beeline is recommended.
+hive> CREATE external TABLE hbase_flight_new(fno int, fsource string,fdest string,fsh_at string,fsh_dt string,delay int)
+    > STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+    > WITH SERDEPROPERTIES ("hbase.columns.mapping" =
+    > ":key,finfo:source,finfo:dest,fsch:at,fsch:dt,fsch:delay_in_mins")
+    > TBLPROPERTIES ("hbase.table.name" = "flight");
+OK
+Time taken: 41.343 seconds
+hive> select * from hbase_flight_new;
+OK
+1	Mumbai	Jannat	10:10 am	12:10 am	26
+2	Kedarnath	Manali	10:15 am	12:15 am	NULL
+Time taken: 12.178 seconds, Fetched: 2 row(s)
+hive> select sum(delay) from hbase_flight_new;
+Query ID = cloudera_20240506164949_f381c016-37e0-49bc-8c21-3e101dd4f91d
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1715037124091_0001, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1715037124091_0001/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1715037124091_0001
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2024-05-06 16:56:16,050 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 16:57:18,292 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 16:58:20,656 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 16:59:23,227 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 17:00:24,312 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 17:01:32,826 Stage-1 map = 100%,  reduce = 0%
+2024-05-06 17:02:35,016 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 36.17 sec
+2024-05-06 17:03:36,031 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 36.17 sec
+2024-05-06 17:03:51,955 Stage-1 map = 100%,  reduce = 67%, Cumulative CPU 40.43 sec
+2024-05-06 17:04:24,866 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 54.25 sec
+MapReduce Total cumulative CPU time: 54 seconds 250 msec
+Ended Job = job_1715037124091_0001
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 55.23 sec   HDFS Read: 7417 HDFS Write: 3 SUCCESS
+Total MapReduce CPU Time Spent: 55 seconds 230 msec
+OK
+26
+Time taken: 913.455 seconds, Fetched: 1 row(s)
+hive> select avg(delay) from hbase_flight_new;
+Query ID = cloudera_20240506170505_d659649f-9a34-4b68-a646-6b57b0b9ea03
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1715037124091_0002, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1715037124091_0002/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1715037124091_0002
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2024-05-06 17:09:29,382 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 17:10:31,123 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 17:11:32,863 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 17:12:33,356 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 17:13:35,691 Stage-1 map = 0%,  reduce = 0%
+2024-05-06 17:13:43,721 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 37.24 sec
+2024-05-06 17:14:45,215 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 37.24 sec
+2024-05-06 17:15:46,507 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 37.24 sec
+2024-05-06 17:15:51,394 Stage-1 map = 100%,  reduce = 67%, Cumulative CPU 40.98 sec
+2024-05-06 17:16:22,673 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 54.86 sec
+MapReduce Total cumulative CPU time: 54 seconds 860 msec
+Ended Job = job_1715037124091_0002
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 55.97 sec   HDFS Read: 7867 HDFS Write: 5 SUCCESS
+Total MapReduce CPU Time Spent: 55 seconds 970 msec
+OK
+26.0
+Time taken: 666.64 seconds, Fetched: 1 row(s)
+hive> SHOW INDEX ON hbase_flight_new;
+OK
+Time taken: 20.996 seconds
+hive> CREATE INDEX hbasefltnew_index
+    >  ON TABLE hbase_flight_new (delay)
+    >  AS 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'
+    > WITH DEFERRED REBUILD;
+OK
+Time taken: 14.09 seconds
+hive> SHOW INDEX ON hbase_flight_new;
+OK
+hbasefltnew_index   	hbase_flight_new    	delay               	default__hbase_flight_new_hbasefltnew_index__	compact             	
+Time taken: 1.041 seconds, Fetched: 1 row(s)
+hive> CREATE INDEX hbasefltnew_index
+    >  ON TABLE hbase_flight_new (delay)
+    > [cloudera@quickstart ~]$ 

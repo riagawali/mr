@@ -1,0 +1,9 @@
+Generate jar file MRPrograms_logFile.jar
+
+1) hadoop fs -put logTime22.csv logTime22
+
+2) hadoop jar MRPrograms_logFile.jar PackageDemo.Max_Logged logTime22 MRDir1
+
+3) hadoop fs -ls MRDir1
+
+4) hadoop fs -cat MRDir1/part-r-000000
